@@ -50,7 +50,6 @@ export const MatrixColumn = styled.div<MatrixElPropsType>`
                     endColumn,
                     columnIndex,
                   }) => {
-    // console.log('rowIndex ', rowIndex, 'startRow ', startRow, 'startEl ', startColumn, 'endRow ', endRow, 'endEl ', endColumn)
       return (rowIndex === endRow && columnIndex === endColumn) && 900}
   };
   font-size: ${({

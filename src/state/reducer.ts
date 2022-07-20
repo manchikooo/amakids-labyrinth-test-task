@@ -1,8 +1,14 @@
-type MatrixType = Array<MatrixRowType>
+export type MatrixType = Array<MatrixRowType>
+
+export type PossibleMovesType = {
+    moves: Array<string>
+    lastCoordinate: PointType
+}
 
 type MatrixRowType = Array<number>
 
 export type PointType = {
+    dir?: string | undefined
     row: number
     column: number
 }
@@ -11,7 +17,7 @@ type InitialStateType = {
     matrix: MatrixType
     matrixSize: number
     startPoint: PointType
-    endPoint: PointType
+    possibleMoves: PossibleMovesType
 }
 
 const initialState: InitialStateType = {
@@ -21,9 +27,12 @@ const initialState: InitialStateType = {
         row: -1,
         column: -1
     },
-    endPoint: {
-        row: -1,
-        column: -1
+    possibleMoves: {
+        moves: [],
+        lastCoordinate: {
+            row: -1,
+            column: -1
+        }
     }
 }
 
@@ -39,49 +48,30 @@ export const matrixReducer = (state: InitialStateType = initialState, action: Ac
             }
             return {...state, matrix}
         }
-        case "SET_START_COORDINATES": {
+        case "SET_START_POINT": {
             const row = Math.round(Math.random() * (action.payload.matrixSize - 1))
             const column = Math.round(Math.random() * (action.payload.matrixSize - 1))
-            return {...state, startPoint: {row, column: column}, endPoint: {row, column: column}}
+            return {
+                ...state,
+                startPoint: {...state.startPoint, row, column},
+            }
         }
         case "SET_MATRIX_SIZE": {
             if (action.payload.size > 5) {
                 return {...state, matrixSize: 5}
-            } else if (action.payload.size < 3) {
-                return {...state, matrixSize: 3}
+            } else if (action.payload.size < 2) {
+                return {...state, matrixSize: 2}
             } else {
                 return {...state, matrixSize: action.payload.size}
             }
         }
-        case "MOVE_UP": {
+        case "SET_POSSIBLE_MOVES": {
             return {
-                ...state, endPoint: {
-                    row: state.endPoint.row - 1,
-                    column: state.endPoint.column
-                }
-            }
-        }
-        case "MOVE_DOWN": {
-            return {
-                ...state, endPoint: {
-                    row: state.endPoint.row + 1,
-                    column: state.endPoint.column
-                }
-            }
-        }
-        case "MOVE_RIGHT": {
-            return {
-                ...state, endPoint: {
-                    row: state.endPoint.row,
-                    column: state.endPoint.column + 1
-                }
-            }
-        }
-        case "MOVE_LEFT": {
-            return {
-                ...state, endPoint: {
-                    row: state.endPoint.row,
-                    column: state.endPoint.column - 1
+                ...state,
+                possibleMoves: {
+                    ...state.possibleMoves,
+                    moves: action.payload.moves,
+                    lastCoordinate: action.payload.lastCoordinate
                 }
             }
         }
@@ -92,12 +82,9 @@ export const matrixReducer = (state: InitialStateType = initialState, action: Ac
 
 type ActionsType =
     CreateMatrixACType
-    | SetStartCoordinatesACType
+    | SetStartPointACType
     | SetMatrixSizeACType
-    | MoveUpACType
-    | MoveDownACType
-    | MoveRightACType
-    | MoveLeftACType
+    | SetPossibleMovesACType
 
 type CreateMatrixACType = ReturnType<typeof createMatrixAC>
 export const createMatrixAC = (tableSize: number) => {
@@ -118,37 +105,25 @@ export const setMatrixSizeAC = (size: number) => {
     } as const
 }
 
-type SetStartCoordinatesACType = ReturnType<typeof setStartCoordinatesAC>
-export const setStartCoordinatesAC = (matrixSize: number) => {
+type SetStartPointACType = ReturnType<typeof setStartPointAC>
+export const setStartPointAC = (matrixSize: number) => {
     return {
-        type: 'SET_START_COORDINATES',
+        type: 'SET_START_POINT',
         payload: {
             matrixSize
         }
     } as const
 }
-
-type MoveUpACType = ReturnType<typeof moveUpAC>
-export const moveUpAC = () => {
+type SetPossibleMovesACType = ReturnType<typeof setPossibleMovesAC>
+export const setPossibleMovesAC = ({
+                                       lastCoordinate,
+                                       moves
+                                   }: { lastCoordinate: PointType, moves: Array<string> }) => {
     return {
-        type: 'MOVE_UP'
-    } as const
-}
-type MoveDownACType = ReturnType<typeof moveDownAC>
-export const moveDownAC = () => {
-    return {
-        type: 'MOVE_DOWN'
-    } as const
-}
-type MoveRightACType = ReturnType<typeof moveRightAC>
-export const moveRightAC = () => {
-    return {
-        type: 'MOVE_RIGHT'
-    } as const
-}
-type MoveLeftACType = ReturnType<typeof moveLeftAC>
-export const moveLeftAC = () => {
-    return {
-        type: 'MOVE_LEFT'
+        type: 'SET_POSSIBLE_MOVES',
+        payload: {
+            moves,
+            lastCoordinate
+        }
     } as const
 }
