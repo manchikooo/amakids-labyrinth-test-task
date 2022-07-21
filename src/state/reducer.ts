@@ -18,6 +18,8 @@ type InitialStateType = {
     matrixSize: number
     startPoint: PointType
     possibleMoves: PossibleMovesType
+    clickedElement: PointType
+    isGotAnswer: boolean
 }
 
 const initialState: InitialStateType = {
@@ -33,7 +35,12 @@ const initialState: InitialStateType = {
             row: -1,
             column: -1
         }
-    }
+    },
+    clickedElement: {
+        row: -1,
+        column: -1
+    },
+    isGotAnswer: false
 }
 
 export const matrixReducer = (state: InitialStateType = initialState, action: ActionsType): InitialStateType => {
@@ -75,6 +82,19 @@ export const matrixReducer = (state: InitialStateType = initialState, action: Ac
                 }
             }
         }
+        case "IS_GOT_ANSWER": {
+            return {...state, isGotAnswer: action.payload.isGotAnswer}
+        }
+        case "SET_CLICKED_ELEMENT": {
+            return {
+                ...state,
+                clickedElement: {
+                    ...state.clickedElement,
+                    row: action.payload.row,
+                    column: action.payload.column
+                }
+            }
+        }
         default:
             return state;
     }
@@ -85,6 +105,8 @@ type ActionsType =
     | SetStartPointACType
     | SetMatrixSizeACType
     | SetPossibleMovesACType
+    | CheckIsGotAnswerACType
+    | SetClickedElementACType
 
 type CreateMatrixACType = ReturnType<typeof createMatrixAC>
 export const createMatrixAC = (tableSize: number) => {
@@ -114,16 +136,32 @@ export const setStartPointAC = (matrixSize: number) => {
         }
     } as const
 }
+
 type SetPossibleMovesACType = ReturnType<typeof setPossibleMovesAC>
-export const setPossibleMovesAC = ({
-                                       lastCoordinate,
-                                       moves
-                                   }: { lastCoordinate: PointType, moves: Array<string> }) => {
+export const setPossibleMovesAC = ({lastCoordinate, moves}: PossibleMovesType) => {
     return {
         type: 'SET_POSSIBLE_MOVES',
         payload: {
             moves,
             lastCoordinate
+        }
+    } as const
+}
+type CheckIsGotAnswerACType = ReturnType<typeof checkGotAnswerAC>
+export const checkGotAnswerAC = (isGotAnswer: boolean) => {
+    return {
+        type: 'IS_GOT_ANSWER',
+        payload: {
+            isGotAnswer
+        }
+    } as const
+}
+type SetClickedElementACType = ReturnType<typeof setClickedElementAC>
+export const setClickedElementAC = ({row, column}: PointType) => {
+    return {
+        type: 'SET_CLICKED_ELEMENT',
+        payload: {
+            row, column
         }
     } as const
 }

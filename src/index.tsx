@@ -4,7 +4,7 @@ import './index.css';
 import reportWebVitals from './reportWebVitals';
 import {Provider} from "react-redux";
 import {store} from "./state/store";
-import {Matrix} from "./components/Matrix/Matrix";
+import {Matrix} from "./Matrix";
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
